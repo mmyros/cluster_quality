@@ -7,7 +7,8 @@ setup(
         'click',
         'numpy',
         'scipy',
-        'scikit-learn'
+        'scikit-learn',
+        'pandas'
     ],
     packages=find_packages(),
     include_package_data=True,
