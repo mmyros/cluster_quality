@@ -6,7 +6,7 @@ In Anaconda prompt:
 
 OR 
 
-Download/clone gitlab.com/INsection/run_spikesorting.git and run `python setup.py install` or `python setup.py develop`
+Download/clone this repo and run `python setup.py install` or `python setup.py develop`
 
 # Usage from command line
 ```bash
@@ -14,9 +14,10 @@ cd path/to/sorting
 cluster_quality 
 OR (from any path):
 cluster_quality --do_parallel=0 --do_drift=0 --kilosort-folder=path/to/sorting 
+```
 cluster_quality -h for more options
 
-```
+
 # Usage from python/Spyder/PyCharm:
 ```python
 from cluster_quality.scripts import cluster_quality
