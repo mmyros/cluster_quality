@@ -113,7 +113,8 @@ def load_kilosort_data(folder,
     if include_pcs:
         pc_features = load(folder, 'pc_features.npy')
         pc_feature_ind = load(folder, 'pc_feature_ind.npy')
-
+    else:
+        pc_features, pc_feature_ind = None, None
     templates = templates[:, template_zero_padding:, :]  # remove zeros
     spike_clusters = np.squeeze(spike_clusters)  # fix dimensions
     spike_times = np.squeeze(spike_times)  # fix dimensions
@@ -134,7 +135,6 @@ def load_kilosort_data(folder,
         cluster_ids = np.unique(spike_clusters)
         cluster_quality = ['unsorted'] * cluster_ids.size
 
-    if not include_pcs:
-        return spike_times, spike_clusters, spike_templates, amplitudes, unwhitened_temps, channel_map, cluster_ids, cluster_quality
-    else:
-        return spike_times, spike_clusters, spike_templates, amplitudes, unwhitened_temps, channel_map, cluster_ids, cluster_quality, pc_features, pc_feature_ind
+
+    return spike_times, spike_clusters, spike_templates, templates, amplitudes, unwhitened_temps, channel_map, cluster_ids, \
+           cluster_quality, pc_features, pc_feature_ind
