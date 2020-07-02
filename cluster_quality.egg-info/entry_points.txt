@@ -1,0 +1,4 @@
+
+    [console_scripts]
+    cluster_quality=cluster_quality.scripts.cluster_quality:cli
+    

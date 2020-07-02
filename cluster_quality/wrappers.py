@@ -598,16 +598,16 @@ def calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, 
     print("Calculating isi violations")
     print(spike_clusters)
     print(total_units)
-    isi_viol_rate, isi_viol_n = wrappers.calculate_isi_violations(spike_times, spike_clusters, isi_threshold, min_isi)
+    isi_viol_rate, isi_viol_n = calculate_isi_violations(spike_times, spike_clusters, isi_threshold, min_isi)
 
     print("Calculating presence ratio")
-    presence_ratio = wrappers.calculate_presence_ratio(spike_times, spike_clusters, )
+    presence_ratio = calculate_presence_ratio(spike_times, spike_clusters, )
 
     print("Calculating firing rate")
-    firing_rate = wrappers.calculate_firing_rate(spike_times, spike_clusters, )
+    firing_rate = calculate_firing_rate(spike_times, spike_clusters, )
 
     print("Calculating amplitude cutoff")
-    amplitude_cutoff = wrappers.calculate_amplitude_cutoff(spike_clusters, amplitudes, )
+    amplitude_cutoff = calculate_amplitude_cutoff(spike_clusters, amplitudes, )
     metrics = pd.DataFrame(data=OrderedDict((('cluster_id', cluster_ids),
                                              ('firing_rate', firing_rate),
                                              ('presence_ratio', presence_ratio),
@@ -618,7 +618,7 @@ def calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, 
         print("Calculating PC-based metrics")
         try:
             (isolation_distance, l_ratio,
-            d_prime, nn_hit_rate, nn_miss_rate) = new_wrappers.calculate_pc_metrics(spike_clusters,
+            d_prime, nn_hit_rate, nn_miss_rate) = new_calculate_pc_metrics(spike_clusters,
                                                                                    spike_templates,
                                                                                    total_units,
                                                                                    pc_features,
