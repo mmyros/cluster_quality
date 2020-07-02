@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import numpy as np
 from sklearn.metrics import silhouette_score
-
+from collections import OrderedDict
 from . import quality_metrics
 
 
@@ -616,9 +616,9 @@ def calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, 
                                              ('amplitude_cutoff', amplitude_cutoff),)))
     if do_pc_features:
         print("Calculating PC-based metrics")
-        try:
-            (isolation_distance, l_ratio,
-            d_prime, nn_hit_rate, nn_miss_rate) = new_calculate_pc_metrics(spike_clusters,
+        # try:
+        (isolation_distance, l_ratio,
+            d_prime, nn_hit_rate, nn_miss_rate) = calculate_pc_metrics(spike_clusters,
                                                                                    spike_templates,
                                                                                    total_units,
                                                                                    pc_features,
@@ -628,20 +628,20 @@ def calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, 
                                                                                    max_spikes_for_nn,
                                                                                    n_neighbors,
                                                                                    do_parallel=do_parallel)
-        except Exception:
-            # Fallback
-            print("Falling back to old Allen algo")
-            (isolation_distance, l_ratio,
-             d_prime, nn_hit_rate, nn_miss_rate) = calculate_pc_metrics(spike_clusters,
-                                                                                 spike_templates,
-                                                                                 total_units,
-                                                                                 pc_features,
-                                                                                 pc_feature_ind,
-                                                                                 num_channels_to_compare,
-                                                                                 max_spikes_for_unit,
-                                                                                 max_spikes_for_nn,
-                                                                                 n_neighbors,
-                                                                                 do_parallel=do_parallel)
+        # except Exception:
+        #     # Fallback
+        #     print("Falling back to old Allen algo")
+        #     (isolation_distance, l_ratio,
+        #      d_prime, nn_hit_rate, nn_miss_rate) = calculate_pc_metrics(spike_clusters,
+        #                                                                          spike_templates,
+        #                                                                          total_units,
+        #                                                                          pc_features,
+        #                                                                          pc_feature_ind,
+        #                                                                          num_channels_to_compare,
+        #                                                                          max_spikes_for_unit,
+        #                                                                          max_spikes_for_nn,
+        #                                                                          n_neighbors,
+        #                                                                          do_parallel=do_parallel)
 
         metrics0 = pd.DataFrame(data=OrderedDict((('isolation_distance', isolation_distance),
                                                   ('l_ratio', l_ratio),
