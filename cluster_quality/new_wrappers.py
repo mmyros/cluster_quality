@@ -1,7 +1,11 @@
 import numpy as np
 
 from . import quality_metrics
-
+import os
+import pandas as pd
+import numpy as np
+from collections import OrderedDict
+from .wrappers import * # Except calculate_pc_metrics and calculate_metrics - they will be replaced below
 
 def calculate_pc_metrics(spike_clusters,
                              spike_templates,
@@ -341,3 +345,148 @@ def calculate_pc_metrics_one_cluster(cluster_peak_channels, idx, cluster_id, clu
         nn_hit_rate = np.nan
         l_ratio = np.nan
     return isolation_distance, d_prime, nn_miss_rate, nn_hit_rate, l_ratio
+
+
+def calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, pc_features, pc_feature_ind,
+                      output_folder=None,
+                      do_parallel=True, do_pc_features=True, do_silhouette=True, do_drift=True,
+                      isi_threshold=0.0015,
+                      min_isi=0.000166,
+                      num_channels_to_compare=5,
+                      max_spikes_for_unit=1500,
+                      max_spikes_for_nn=20000,
+                      n_neighbors=4,
+                      n_silhouette=20000,
+                      drift_metrics_interval_s=51,
+                      drift_metrics_min_spikes_per_interval=10
+                      ):
+    """ Calculate metrics for all units on one probe
+    from mmy.input_output import spike_io
+    ksort_folder = '~/res_ss_full/res_ss/tcloop_train_m022_1553627381_'
+    spike_times, spike_clusters, spike_templates, amplitudes, templates, channel_map, clusterIDs, cluster_quality, pc_features, pc_feature_ind = \
+        spike_io.QualityMetrics.load_kilosort_data(ksort_folder, 3e4, False, include_pcs=True)
+    metrics = QualityMetrics.calculate_metrics(spike_times, spike_clusters, amplitudes, pc_features, pc_feature_ind, ksort_folder)
+
+
+
+    Inputs:
+    ------
+    spike_times : numpy.ndarray (num_spikes x 0)
+        Spike times in seconds (same timebase as epochs)
+    spike_clusters : numpy.ndarray (num_spikes x 0)
+        Cluster IDs for each spike time
+    amplitudes : numpy.ndarray (num_spikes x 0)
+        Amplitude value for each spike time
+    channel_map : numpy.ndarray (num_units x 0)
+        Original data channel for pc_feature_ind array
+    pc_features : numpy.ndarray (num_spikes x num_pcs x num_channels)
+        Pre-computed PCs for blocks of channels around each spike
+    pc_feature_ind : numpy.ndarray (num_units x num_channels)
+        Channel indices of PCs for each unit
+    epochs : list of Epoch objects
+        contains information on Epoch start and stop times
+    params : dict of parameters
+        'isi_threshold' : minimum time for isi violations
+
+    Outputs:
+    --------
+    metrics : pandas.DataFrame
+        one column for each metric
+        one row per unit per epoch
+    """
+
+    # ==========================================================
+    # MAIN:
+    # ==========================================================
+
+    cluster_ids = np.unique(spike_clusters)
+    total_units = len(np.unique(spike_clusters))
+    print("Calculating isi violations")
+    print(spike_clusters)
+    print(total_units)
+    isi_viol_rate, isi_viol_n = calculate_isi_violations(spike_times, spike_clusters, isi_threshold, min_isi)
+
+    print("Calculating presence ratio")
+    presence_ratio = calculate_presence_ratio(spike_times, spike_clusters, )
+
+    print("Calculating firing rate")
+    firing_rate = calculate_firing_rate(spike_times, spike_clusters, )
+
+    print("Calculating amplitude cutoff")
+    amplitude_cutoff = calculate_amplitude_cutoff(spike_clusters, amplitudes, )
+    metrics = pd.DataFrame(data=OrderedDict((('cluster_id', cluster_ids),
+                                             ('firing_rate', firing_rate),
+                                             ('presence_ratio', presence_ratio),
+                                             ('isi_viol_rate', isi_viol_rate),
+                                             ('isi_viol_n', isi_viol_n),
+                                             ('amplitude_cutoff', amplitude_cutoff),)))
+    if do_pc_features:
+        print("Calculating PC-based metrics")
+        # try:
+        (isolation_distance, l_ratio,
+         d_prime, nn_hit_rate, nn_miss_rate) = calculate_pc_metrics(spike_clusters,
+                                                                    spike_templates,
+                                                                    total_units,
+                                                                    pc_features,
+                                                                    pc_feature_ind,
+                                                                    num_channels_to_compare,
+                                                                    max_spikes_for_unit,
+                                                                    max_spikes_for_nn,
+                                                                    n_neighbors,
+                                                                    do_parallel=do_parallel)
+        # except Exception:
+        #     # Fallback
+        #     print("Falling back to old Allen algo")
+        #     (isolation_distance, l_ratio,
+        #      d_prime, nn_hit_rate, nn_miss_rate) = calculate_pc_metrics(spike_clusters,
+        #                                                                          spike_templates,
+        #                                                                          total_units,
+        #                                                                          pc_features,
+        #                                                                          pc_feature_ind,
+        #                                                                          num_channels_to_compare,
+        #                                                                          max_spikes_for_unit,
+        #                                                                          max_spikes_for_nn,
+        #                                                                          n_neighbors,
+        #                                                                          do_parallel=do_parallel)
+
+        metrics0 = pd.DataFrame(data=OrderedDict((('isolation_distance', isolation_distance),
+                                                  ('l_ratio', l_ratio),
+                                                  ('d_prime', d_prime),
+                                                  ('nn_hit_rate', nn_hit_rate),
+                                                  ('nn_miss_rate', nn_miss_rate)
+                                                  )))
+        metrics = pd.concat([metrics, metrics0], axis=1)
+    if do_silhouette:
+        print("Calculating silhouette score")
+        the_silhouette_score = calculate_silhouette_score(spike_clusters,
+                                                          spike_templates,
+                                                          total_units,
+                                                          pc_features,
+                                                          pc_feature_ind,
+                                                          n_silhouette,
+                                                          do_parallel=True)
+        metrics2 = pd.DataFrame(data=OrderedDict((('silhouette_score', the_silhouette_score),)),
+                                index=range(len(the_silhouette_score)))
+
+        metrics = pd.concat([metrics, metrics2], axis=1)
+    if do_drift:
+        print("Calculating drift metrics")
+        # TODO [in_epoch] has to go. Need to modify loading function
+        max_drift, cumulative_drift = calculate_drift_metrics(spike_times,
+                                                              spike_clusters,
+                                                              spike_templates,
+                                                              pc_features,
+                                                              pc_feature_ind,
+                                                              drift_metrics_interval_s,
+                                                              drift_metrics_min_spikes_per_interval,
+                                                              do_parallel=do_parallel)
+
+        metrics3 = pd.DataFrame(data=OrderedDict((('max_drift', max_drift),
+                                                  ('cumulative_drift', cumulative_drift),
+                                                  )))
+        metrics = pd.concat([metrics, metrics3], axis=1)
+    # write to output file if requested
+    if output_folder is not None:
+        metrics.to_csv(os.path.join(output_folder, 'quality_metrics.csv'), index=False)
+
+    return metrics

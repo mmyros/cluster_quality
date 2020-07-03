@@ -16,10 +16,10 @@ def calculate_isi_violations(spike_times, spike_clusters, isi_threshold, min_isi
     for idx, cluster_id in enumerate(cluster_ids):
         for_this_cluster = (spike_clusters == cluster_id)
         viol_rate, viol_n = quality_metrics.isi_violations(spike_times[for_this_cluster],
-                                                          min_time=np.min(spike_times),
-                                                          max_time=np.max(spike_times),
-                                                          isi_threshold=isi_threshold,
-                                                          min_isi=min_isi)
+                                                           min_time=np.min(spike_times),
+                                                           max_time=np.max(spike_times),
+                                                           isi_threshold=isi_threshold,
+                                                           min_isi=min_isi)
         viol_rates.append(viol_rate)
         viol_ns.append(viol_n)
 
@@ -41,8 +41,8 @@ def calculate_presence_ratio(spike_times, spike_clusters):
     for idx, cluster_id in enumerate(cluster_ids):
         for_this_cluster = (spike_clusters == cluster_id)
         ratios.append(quality_metrics.presence_ratio(spike_times[for_this_cluster],
-                                                    min_time=np.min(spike_times),
-                                                    max_time=np.max(spike_times)))
+                                                     min_time=np.min(spike_times),
+                                                     max_time=np.max(spike_times)))
 
     return np.array(ratios)
 
@@ -61,8 +61,8 @@ def calculate_firing_rate(spike_times, spike_clusters):
     for idx, cluster_id in enumerate(cluster_ids):
         for_this_cluster = (spike_clusters == cluster_id)
         firing_rates.append(quality_metrics.firing_rate(spike_times[for_this_cluster],
-                                                       min_time=np.min(spike_times),
-                                                       max_time=np.max(spike_times)))
+                                                        min_time=np.min(spike_times),
+                                                        max_time=np.max(spike_times)))
 
     return np.array(firing_rates)
 
@@ -163,7 +163,6 @@ def calculate_pc_metrics(spike_clusters,
 
 def calculate_pc_metrics_one_cluster(peak_channels, cluster_id, half_spread, pc_features, pc_feature_ind,
                                      spike_clusters, max_spikes_for_cluster, max_spikes_for_nn, n_neighbors):
-
     # HELPERS:
     def make_index_mask(spike_clusters, unit_id, min_num, max_num):
         """ Create a mask for the spike index dimensions of the pc_features array
@@ -275,7 +274,7 @@ def calculate_pc_metrics_one_cluster(peak_channels, cluster_id, half_spread, pc_
         pc_feature_ind.shape)
 
     # Skip peak_channels if they are not present in unit_list:
-    units_for_channel = units_for_channel[np.in1d(units_for_channel,peak_channels)]
+    units_for_channel = units_for_channel[np.in1d(units_for_channel, peak_channels)]
 
     units_in_range = (peak_channels[units_for_channel] >= peak_channel - half_spread_down) * \
                      (peak_channels[units_for_channel] <= peak_channel + half_spread_up)
@@ -325,7 +324,7 @@ def calculate_pc_metrics_one_cluster(peak_channels, cluster_id, half_spread, pc_
     if ((all_pcs.shape[0] > 10)
             and (cluster_id in all_labels)
             and (len(channels_to_use) > 0)
-        and not (all_labels== cluster_id).all()
+            and not (all_labels == cluster_id).all()
     ):
 
         isolation_distance, l_ratio = quality_metrics.mahalanobis_metrics(all_pcs, all_labels, cluster_id)
@@ -333,9 +332,9 @@ def calculate_pc_metrics_one_cluster(peak_channels, cluster_id, half_spread, pc_
         d_prime = quality_metrics.lda_metrics(all_pcs, all_labels, cluster_id)
 
         nn_hit_rate, nn_miss_rate = quality_metrics.nearest_neighbors_metrics(all_pcs, all_labels,
-                                                                             cluster_id,
-                                                                             max_spikes_for_nn,
-                                                                             n_neighbors)
+                                                                              cluster_id,
+                                                                              max_spikes_for_nn,
+                                                                              n_neighbors)
     else:  # Too few spikes or cluster doesnt exist
         isolation_distance = np.nan
         d_prime = np.nan
@@ -618,16 +617,16 @@ def calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, 
         print("Calculating PC-based metrics")
         # try:
         (isolation_distance, l_ratio,
-            d_prime, nn_hit_rate, nn_miss_rate) = calculate_pc_metrics(spike_clusters,
-                                                                                   spike_templates,
-                                                                                   total_units,
-                                                                                   pc_features,
-                                                                                   pc_feature_ind,
-                                                                                   num_channels_to_compare,
-                                                                                   max_spikes_for_unit,
-                                                                                   max_spikes_for_nn,
-                                                                                   n_neighbors,
-                                                                                   do_parallel=do_parallel)
+         d_prime, nn_hit_rate, nn_miss_rate) = calculate_pc_metrics(spike_clusters,
+                                                                    spike_templates,
+                                                                    total_units,
+                                                                    pc_features,
+                                                                    pc_feature_ind,
+                                                                    num_channels_to_compare,
+                                                                    max_spikes_for_unit,
+                                                                    max_spikes_for_nn,
+                                                                    n_neighbors,
+                                                                    do_parallel=do_parallel)
         # except Exception:
         #     # Fallback
         #     print("Falling back to old Allen algo")
@@ -653,12 +652,12 @@ def calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, 
     if do_silhouette:
         print("Calculating silhouette score")
         the_silhouette_score = calculate_silhouette_score(spike_clusters,
-                                                                   spike_templates,
-                                                                   total_units,
-                                                                   pc_features,
-                                                                   pc_feature_ind,
-                                                                   n_silhouette,
-                                                                   do_parallel=True)
+                                                          spike_templates,
+                                                          total_units,
+                                                          pc_features,
+                                                          pc_feature_ind,
+                                                          n_silhouette,
+                                                          do_parallel=True)
         metrics2 = pd.DataFrame(data=OrderedDict((('silhouette_score', the_silhouette_score),)),
                                 index=range(len(the_silhouette_score)))
 
@@ -667,13 +666,13 @@ def calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, 
         print("Calculating drift metrics")
         # TODO [in_epoch] has to go. Need to modify loading function
         max_drift, cumulative_drift = calculate_drift_metrics(spike_times,
-                                                                       spike_clusters,
-                                                                       spike_templates,
-                                                                       pc_features,
-                                                                       pc_feature_ind,
-                                                                       drift_metrics_interval_s,
-                                                                       drift_metrics_min_spikes_per_interval,
-                                                                       do_parallel=do_parallel)
+                                                              spike_clusters,
+                                                              spike_templates,
+                                                              pc_features,
+                                                              pc_feature_ind,
+                                                              drift_metrics_interval_s,
+                                                              drift_metrics_min_spikes_per_interval,
+                                                              do_parallel=do_parallel)
 
         metrics3 = pd.DataFrame(data=OrderedDict((('max_drift', max_drift),
                                                   ('cumulative_drift', cumulative_drift),
