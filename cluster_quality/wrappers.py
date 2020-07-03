@@ -5,6 +5,7 @@ import numpy as np
 from sklearn.metrics import silhouette_score
 from collections import OrderedDict
 from . import quality_metrics
+from tqdm import tqdm
 
 
 def calculate_isi_violations(spike_times, spike_clusters, isi_threshold, min_isi):
@@ -137,7 +138,6 @@ def calculate_pc_metrics(spike_clusters,
              )
             for cluster_id in cluster_ids)  # Loop
     else:
-        from tqdm import tqdm
         meas = [calculate_pc_metrics_one_cluster(  # Function
             peak_channels, cluster_id, half_spread, pc_features, pc_feature_ind, spike_clusters,  # Arguments
             max_spikes_for_cluster, max_spikes_for_nn, n_neighbors)

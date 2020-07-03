@@ -6,6 +6,8 @@ import pandas as pd
 import numpy as np
 from collections import OrderedDict
 from .wrappers import * # Except calculate_pc_metrics and calculate_metrics - they will be replaced below
+from tqdm import tqdm
+
 
 def calculate_pc_metrics(spike_clusters,
                              spike_templates,
@@ -64,7 +66,6 @@ def calculate_pc_metrics(spike_clusters,
              max_spikes_for_cluster, max_spikes_for_nn, n_neighbors)
             for idx, cluster_id in enumerate(cluster_ids))  # Loop
     else:
-        from tqdm import tqdm
         meas = []
         for idx, cluster_id in tqdm(enumerate(cluster_ids), total=cluster_ids.max(), desc='PC metrics'):  # Loop
             # meas.append(Wrappers.calculate_pc_metrics_one_cluster_old(
