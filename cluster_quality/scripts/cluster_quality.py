@@ -33,8 +33,8 @@ def cli(kilosort_folder=None, do_parallel=True, do_pc_features=True, do_silhouet
     else:
         do_include_pcs = False
 
-    (the_spike_times, the_spike_clusters, the_spike_templates, the_amplitudes, the_templates,
-     the_channel_map, the_clusterIDs, the_cluster_quality,
+    (the_spike_times, the_spike_clusters, the_spike_templates, the_templates, the_amplitudes, the_unwhitened_temps,
+     the_channel_map, the_cluster_ids, the_cluster_quality,
      the_pc_features, the_pc_feature_ind) = io.load_kilosort_data(kilosort_folder,
                                                                   fs,
                                                                   False,
