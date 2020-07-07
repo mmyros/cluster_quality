@@ -30,3 +30,11 @@ from cluster_quality.scripts import cluster_quality
 path='C:\my_path_to_files'
 cluster_quality.cli(kilosort_folder='path/to/sorting', do_drift=0,do_parallel=1)
 ```
+
+If all goes well, a comma-separated file `quality_metrics.csv` should appear in the same folder. 
+To inspect it, open in Excel or:
+```python
+import pandas as pd
+result=pd.read_csv('quality_metrics.csv')
+print(result.head())
+```
