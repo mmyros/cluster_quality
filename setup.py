@@ -8,7 +8,8 @@ setup(
         'numpy',
         'scipy',
         'scikit-learn',
-        'pandas'
+        'pandas',
+        'joblib'
     ],
     packages=find_packages(),
     include_package_data=True,

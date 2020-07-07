@@ -8,6 +8,12 @@ OR
 
 Download/clone this repo and run `python setup.py install` or `python setup.py develop`
 
+## Note for Windows users
+If for some reason dependencies do not get installed automatically and you run into missing packages problems, use:
+``` bash
+pip install click numpy scipy scikit-learn pandas joblib
+```
+
 # Usage from command line
 ```bash
 cd path/to/sorting
