@@ -40,9 +40,10 @@ def cli(kilosort_folder=None, do_parallel=True, do_pc_features=True, do_silhouet
                                                                   False,
                                                                   include_pcs=do_include_pcs)
 
-    (the_spike_times, the_spike_clusters, the_spike_templates,
-     the_amplitudes, the_pc_features,
-     the_overlap_matrix) = ksort_postprocessing.remove_double_counted_spikes(the_spike_times,
+    try:
+        (the_spike_times, the_spike_clusters, the_spike_templates,
+         the_amplitudes, the_pc_features,
+         the_overlap_matrix) = ksort_postprocessing.remove_double_counted_spikes(the_spike_times,
                                                                             the_spike_clusters,
                                                                             the_spike_templates,
                                                                             the_amplitudes,
@@ -50,7 +51,9 @@ def cli(kilosort_folder=None, do_parallel=True, do_pc_features=True, do_silhouet
                                                                             the_templates,
                                                                             the_pc_features,
                                                                             sample_rate=fs)
-
+    except IndexError as e: # IndexError
+        print(e)
+        print('Cannot remove overlapping spikes due to error above ')
 
     all_metrics = calculate_metrics(the_spike_times, the_spike_clusters, the_spike_templates,
                                     the_amplitudes, the_pc_features, the_pc_feature_ind,
