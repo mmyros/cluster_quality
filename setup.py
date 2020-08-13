@@ -4,6 +4,7 @@ setup(
     name='cluster_quality',
     version='0.0.1',
     install_requires=[
+        'xarray',
         'click',
         'numpy',
         'scipy',
