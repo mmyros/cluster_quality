@@ -12,6 +12,7 @@ def download_test_data(base_url='http://data.cortexlab.net/singlePhase3/data/',
                        ):
     # Add name of dataset:
     base_path=Path(base_path+"".join(base_url.split('/')[-3:]))
+    base_path.mkdir(parents=True, exist_ok=True)
     files = ['amplitudes.npy', 'channel_map.npy', 'channel_positions.npy', 'cluster_groups.csv', 'spike_clusters.npy',
              'spike_templates.npy', 'spike_times.npy', 'templates.npy', 'templates_ind.npy', 'whitening_mat_inv.npy',
              'pc_features.npy', 'pc_feature_ind.npy']
