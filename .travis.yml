@@ -10,6 +10,7 @@ env:
 #services:
 #- docker
 script: pytest
+language: python
 service_name: travis-pro
 repo_token: 6Gjjye27wtLKiFSXf02UgeTP6pjeEXPx5
 main: &main
