@@ -1,4 +1,5 @@
-import urllib.request
+#import urllib.request
+import urllib3
 from pathlib import Path
 from tqdm import tqdm
 from cluster_quality import io
