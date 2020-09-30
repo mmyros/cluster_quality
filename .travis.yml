@@ -39,6 +39,8 @@ pytest:
   - coverage-badge
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
 
+after_success:
+  - codecov # submit coverage
 
 #nosetest:
 #  stage: Test

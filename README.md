@@ -1,6 +1,6 @@
 [![Actions Status](https://github.com/mmyros/cluster_quality/workflows/Python%20package/badge.svg)](https://github.com/mmyros/cluster_quality/actions)
-[![Coverage Status](https://coveralls.io/repos/github/mmyros/cluster_quality/badge.svg?branch=master)](https://coveralls.io/github/mmyros/cluster_quality?branch=master)
-
+[![Build Status](https://travis-ci.com/mmyros/cluster_quality.svg?branch=master)](https://travis-ci.com/mmyros/cluster_quality)
+[![Coverage Status](https://coveralls.io/repos/github/mmyros/cluster_quality/badge.svg)](https://coveralls.io/github/mmyros/cluster_quality)
 # cluster_quality
 Quality metrics based on Allen Institute's 
 # Setup
