@@ -23,7 +23,8 @@ def download_test_data(base_url='http://data.cortexlab.net/singlePhase3/data/',
             http = urllib3.PoolManager()
             r = http.request('GET', base_url + file)
             with open(fname, 'wb') as out:
-                out.write(r.read())
+                out.write(r.data)
+            r.release_conn()
             #urllib.request.urlretrieve(base_url + file, fname)
     return base_path, files
 
