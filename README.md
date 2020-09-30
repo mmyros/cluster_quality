@@ -1,4 +1,5 @@
-[![Actions Status](https://github.com/mmyros/cluster_quality/workflows/{workflow_name}/badge.svg)](https://github.com/mmyros/cluster_quality/actions)
+[![Actions Status](https://github.com/mmyros/cluster_quality/workflows/Python%20package/badge.svg)](https://github.com/mmyros/cluster_quality/actions)
+[![Coverage Status](https://coveralls.io/repos/github/mmyros/cluster_quality/badge.svg?branch=master)](https://coveralls.io/github/mmyros/cluster_quality?branch=master)
 
 # cluster_quality
 Quality metrics based on Allen Institute's 
