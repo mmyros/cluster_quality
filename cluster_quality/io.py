@@ -1,8 +1,7 @@
 import os
 
 import numpy as np
-
-
+from pathlib import Path
 
 """
 Adapted from Allen from:
@@ -97,7 +96,7 @@ def load_kilosort_data(folder,
         cluster_quality = info[1:, 1]
 
         return cluster_ids, cluster_quality
-
+    folder = Path(folder)
     if use_master_clock:
         spike_times = load(folder, 'spike_times_master_clock.npy')
     else:
@@ -129,9 +128,11 @@ def load_kilosort_data(folder,
         unwhitened_temps[temp_idx, :, :] = np.dot(np.ascontiguousarray(templates[temp_idx, :, :]),
                                                   np.ascontiguousarray(unwhitening_mat))
 
-    try:
-        cluster_ids, cluster_quality = read_cluster_group_tsv(os.path.join(folder, 'cluster_group.tsv'))
-    except OSError:
+    if Path(folder / 'cluster_group.tsv').exists():
+        cluster_ids, cluster_quality = read_cluster_group_tsv(Path(folder / 'cluster_group.tsv'))
+    elif Path(folder / 'cluster_groups.csv').exists(): # older Kilosort convention
+        cluster_ids, cluster_quality = read_cluster_group_tsv(Path(folder / 'cluster_groups.csv'))
+    else:
         cluster_ids = np.unique(spike_clusters)
         cluster_quality = ['unsorted'] * cluster_ids.size
 
