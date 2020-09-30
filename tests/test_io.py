@@ -19,8 +19,11 @@ def download_test_data(base_url='http://data.cortexlab.net/singlePhase3/data/',
     for file in tqdm(files):
         fname = base_path / Path(file)
         if not fname.exists():
-            
-            urllib.request.urlretrieve(base_url + file, fname)
+            http = urllib3.PoolManager()
+            r = http.request('GET', base_url + file)
+            with open(fname, 'wb') as out:
+                out.write(r.read())
+            #urllib.request.urlretrieve(base_url + file, fname)
     return base_path, files
 
 
