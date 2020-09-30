@@ -1,3 +1,5 @@
+[![Actions Status](https://github.com/mmyros/cluster_quality/workflows/{workflow_name}/badge.svg)](https://github.com/mmyros/cluster_quality/actions)
+
 # cluster_quality
 Quality metrics based on Allen Institute's 
 # Setup
