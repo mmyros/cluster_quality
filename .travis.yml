@@ -24,7 +24,8 @@ before_install:
   - python --version
   - pip install -U cython setuptools pip numpy
   - pip install -r requirements.txt
-
+  - pip install pytest-cov
+  - pip install coveralls
 stages:
   - Test
 
@@ -32,7 +33,7 @@ pytest:
   stage: Test
   language: python
   script:
-  - pytest --cov dj_schemas --cov-report html --cov-report xml:coverage.xml 
+  - pytest --cov dj_schemas --cov-report html --cov-report xml:coverage.xml
   - coverage report -m
   - coverage-badge
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
