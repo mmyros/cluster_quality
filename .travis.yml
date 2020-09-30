@@ -1,3 +1,23 @@
+env:
+  global:
+    - MINIO_VER="RELEASE.2019-09-26T19-42-35Z"
+    - ALPINE_VER="3.10"
+    - COMPOSE_HTTP_TIMEOUT="300"
+    - UID="2000"
+    - GID="2000"
+    - COVERALLS_SERVICE_NAME="travis-ci"
+    - COVERALLS_REPO_TOKEN="6Gjjye27wtLKiFSXf02UgeTP6pjeEXPx5"
+#services:
+#- docker
+service_name: travis-pro
+repo_token: 6Gjjye27wtLKiFSXf02UgeTP6pjeEXPx5
+main: &main
+      stage: "Tests & Coverage: Alpine"
+      os: linux
+      dist: xenial # precise, trusty, xenial, bionic
+      language: python
+
+
 image: "python:3.7"
 
 before_install:
