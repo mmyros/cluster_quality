@@ -33,6 +33,7 @@ before_install:
   - pip install -r requirements.txt
   - pip install pytest-cov
   - pip install coveralls
+  - pip install codecov
 stages:
   - Test
 
