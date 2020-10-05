@@ -1,73 +1,18 @@
-env:
-  global:
-    - MINIO_VER="RELEASE.2019-09-26T19-42-35Z"
-    - ALPINE_VER="3.10"
-    - COMPOSE_HTTP_TIMEOUT="300"
-    - UID="2000"
-    - GID="2000"
-    - COVERALLS_SERVICE_NAME="travis-ci"
-    - COVERALLS_REPO_TOKEN="6Gjjye27wtLKiFSXf02UgeTP6pjeEXPx5"
-#services:
-#- docker
-script: pytest
 language: python
-main: &main
-      stage: "Tests & Coverage: Alpine"
-      os: linux
-      dist: xenial # precise, trusty, xenial, bionic
-      language: python
-
-coverage:
-- uses: devmasx/coverage-check-action@v1.1.0
-  with:
-    type: lcov
-    result_path: coverage/example.lcov
-    min_coverage: 90
-    token: ${{secrets.GITHUB_TOKEN}}
-
-image: "python:3.7"
-
+python:
+    - '3.7'
+notifications:
+  email: false
 before_install:
-  - python --version
-  - pip install -U cython setuptools pip numpy
+ - python --version
+ - pip install -U cython setuptools pip numpy
+
+install:
   - pip install -r requirements.txt
   - pip install pytest-cov
   - pip install coveralls
   - pip install codecov
-stages:
-  - Test
-
-pytest:
-  stage: Test
-  language: python
-  script:
-  - pytest --cov=. tests --cov-report html --cov-report xml:coverage.xml
-  - pytest --cov=. tests
-  - coverage report -m
-  - coverage-badge
-  coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
-
-
-coveralls:
-- name: Coveralls GitHub Action
-  uses: coverallsapp/github-action@v1.1.2
-
-
+script: pytest --cov=spectral_connectivity tests/
 after_success:
-  - codecov  # submit coverage
+  - codecov
   - coveralls
-  - bash <(curl -s https://codecov.io/bash)
-#nosetest:
-#  stage: Test
-#  script:
-#  - nosetests --with-coverage --cover-erase --cover-package=tests/ --cover-html
-#  coverage: '/Code coverage: \d+\.\d+/'
-
-#prettycoverage:
-#  stage: Test
-#  script:
-##    - npm install
-#    - npx nyc --reporter cobertura mocha
-#  artifacts:
-#    reports:
-#      cobertura: coverage/cobertura-coverage.xml
