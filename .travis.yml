@@ -54,6 +54,7 @@ coveralls:
 after_success:
   - codecov # submit coverage
   - coveralls
+  - bash <(curl -s https://codecov.io/bash)
 #nosetest:
 #  stage: Test
 #  script:
