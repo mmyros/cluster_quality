@@ -1,4 +1,3 @@
-[![Actions Status](https://github.com/mmyros/cluster_quality/workflows/Python%20package/badge.svg)](https://github.com/mmyros/cluster_quality/actions)
 [![Build Status](https://travis-ci.com/mmyros/cluster_quality.svg?branch=master)](https://travis-ci.com/mmyros/cluster_quality)
 [![codecov](https://codecov.io/gh/mmyros/cluster_quality/branch/master/graph/badge.svg?token=Y4K6ADRTXR)](undefined)
 [![Coverage Status](https://coveralls.io/repos/github/mmyros/cluster_quality/badge.svg)](https://coveralls.io/github/mmyros/cluster_quality)
