@@ -12,7 +12,7 @@ install:
   - pip install pytest-cov
   - pip install coveralls
   - pip install codecov
-script: pytest --cov=spectral_connectivity tests/
+script: pytest --cov=cluster_quality tests/
 after_success:
   - codecov
   - coveralls
