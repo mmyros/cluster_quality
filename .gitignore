@@ -1,4 +1,6 @@
-     
+# Large test files
+test_data
+pc_features.npy
 # file: ~/.gitignore_global
 .DS_Store
 .idea

@@ -10,7 +10,7 @@ https://github.com/AllenInstitute/ecephys_spike_sorting.git
 
 
 def load_kilosort_data(folder,
-                       sample_rate=None,
+                       sample_rate,
                        convert_to_seconds=True,
                        use_master_clock=False,
                        include_pcs=False,
@@ -22,7 +22,7 @@ def load_kilosort_data(folder,
     -------
     folder : String
         Location of Kilosort output directory
-    sample_rate : float (optional)
+    sample_rate : float
         AP band sample rate in Hz
     convert_to_seconds : bool (optional)
         Flags whether to return spike times in seconds (requires sample_rate to be set)
