@@ -41,10 +41,10 @@ pytest:
   stage: Test
   language: python
   script:
-#  - pytest --cov=. dj_schemas --cov-report html --cov-report xml:coverage.xml
-  - pytest --cov=. dj_schemas
-#  - coverage report -m
-#  - coverage-badge
+  - pytest --cov=. tests --cov-report html --cov-report xml:coverage.xml
+  - pytest --cov=. tests
+  - coverage report -m
+  - coverage-badge
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
 
 
