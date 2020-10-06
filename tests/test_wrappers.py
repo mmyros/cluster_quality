@@ -8,6 +8,8 @@ reload(test_dependencies)
 from cluster_quality import wrappers
 import numpy as np
 from pathlib import Path
+
+
 # from ecephys_spike_sorting.modules.quality_metrics import metrics
 
 
@@ -55,12 +57,17 @@ def test_calculate_metrics():
                                     output_folder=None, do_parallel=False,
                                     do_pc_features=False, do_silhouette=False, do_drift=False)
     df.to_csv(path_expected / 'timing_metrics.df', index=False)
-    df1=pd.read_csv(path_expected / 'timing_metrics.df')
+    df1 = pd.read_csv(path_expected / 'timing_metrics.df')
     pd.testing.assert_frame_equal(df, df1, check_dtype=False)
 
-    (spike_times, spike_clusters, spike_templates, templates, amplitudes,
-     unwhitened_temps, channel_map, cluster_ids, cluster_quality, pc_features, pc_feature_ind
+    (spike_times, spike_clusters, spike_templates, _, amplitudes, _, _, _, _, pc_features, pc_feature_ind
      ) = io.load_kilosort_data(base_path, include_pcs=True, sample_rate=3e4)
+
+    import numpy as np
+    # Subsample for speed
+    i = np.random.randint(0, spike_clusters.shape[0], int(spike_clusters.shape[0] / 10))
+    (spike_times, spike_clusters, spike_templates, amplitudes, pc_features) = (
+        spike_times[i], spike_clusters[i], spike_templates[i], amplitudes[i], pc_features[i])
 
     df = wrappers.calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, pc_features,
                                     pc_feature_ind,
@@ -82,4 +89,6 @@ def test_calculate_metrics():
                                     do_pc_features=False, do_silhouette=False, do_drift=True)
     df.to_csv(path_expected / 'drift.df', index=False)
     pd.testing.assert_frame_equal(df, pd.read_csv(path_expected / 'drift.df'), check_dtype=False)
-# test_calculate_metrics()
+
+
+test_calculate_metrics()
