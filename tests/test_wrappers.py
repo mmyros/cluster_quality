@@ -1,13 +1,12 @@
 from cluster_quality import io
 from importlib import reload
-
 reload(io)
 from tests import test_dependencies
-
 reload(test_dependencies)
 from cluster_quality import wrappers
-import numpy as np
 from pathlib import Path
+import pandas as pd
+import numpy as np
 
 
 # from ecephys_spike_sorting.modules.quality_metrics import metrics
@@ -36,9 +35,6 @@ def test_calculate_isi_violations():
     assert np.isclose(isi_viol_n.mean(), 91.135, atol=.00001)
 
 
-import pandas as pd
-
-import numpy as np
 
 def test_calculate_metrics():
     ### SinglePhase3

@@ -10,13 +10,9 @@ from collections import OrderedDict
 import pandas as pd
 
 from .. import io
-from .. import unsafe_wrappers
-from .. import wrappers
-
-
 from .. import ksort_postprocessing
 from ..wrappers import calculate_metrics
-
+import warnings
 @click.command()
 @click.option('--kilosort_folder', default=None, help='kilosort_folder to read from and write to')
 @click.option('--do_parallel', default=1, help='Parallel or not, 0 or 1')
@@ -26,8 +22,12 @@ from ..wrappers import calculate_metrics
 def cli(kilosort_folder=None, do_parallel=True, do_pc_features=True, do_silhouette=True, do_drift=True, fs=3e4):
     """ Calculate metrics for all units on one probe"""
     # kilosort_folder = '~/res_ss_full/res_ss/tcloop_train_m022_1553627381_'
+    if (np.array([do_parallel,do_pc_features, do_silhouette,do_drift])=='False'|
+        np.array([do_parallel, do_pc_features, do_silhouette, do_drift]) == 'True'):
+        warnings.warn('Please dont use True or False for input from command line! use 0 or 1 instead')
     if kilosort_folder is None:
         kilosort_folder = os.getcwd()
+    print(f'Running cluster_quality in folder {kilosort_folder}')
     if do_pc_features:
         do_include_pcs = True
     else:

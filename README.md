@@ -45,6 +45,6 @@ print(result.head())
 ```
 
 # Notes
-```commandline
+```
 pip install git+https://github.com/AllenInstitute/ecephys_spike_sorting.git
 ```
