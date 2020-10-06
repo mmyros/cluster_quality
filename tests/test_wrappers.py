@@ -38,6 +38,7 @@ def test_calculate_isi_violations():
 
 import pandas as pd
 
+import numpy as np
 
 def test_calculate_metrics():
     ### SinglePhase3
@@ -51,6 +52,11 @@ def test_calculate_metrics():
      unwhitened_temps, channel_map, cluster_ids, cluster_quality, pc_features, pc_feature_ind
      ) = io.load_kilosort_data(base_path, include_pcs=False, sample_rate=3e4)
 
+    # Subsample for speed
+    i = np.random.randint(0, spike_clusters.shape[0], int(spike_clusters.shape[0] / 50))
+    (spike_times, spike_clusters, spike_templates, amplitudes) = (
+        spike_times[i], spike_clusters[i], spike_templates[i], amplitudes[i])
+
     # Test separate stages by turning `do_*` flags on or off
     df = wrappers.calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, pc_features,
                                     pc_feature_ind,
@@ -63,9 +69,8 @@ def test_calculate_metrics():
     (spike_times, spike_clusters, spike_templates, _, amplitudes, _, _, _, _, pc_features, pc_feature_ind
      ) = io.load_kilosort_data(base_path, include_pcs=True, sample_rate=3e4)
 
-    import numpy as np
     # Subsample for speed
-    i = np.random.randint(0, spike_clusters.shape[0], int(spike_clusters.shape[0] / 20))
+    i = np.random.randint(0, spike_clusters.shape[0], int(spike_clusters.shape[0] / 50))
     (spike_times, spike_clusters, spike_templates, amplitudes, pc_features) = (
         spike_times[i], spike_clusters[i], spike_templates[i], amplitudes[i], pc_features[i])
 
@@ -91,4 +96,4 @@ def test_calculate_metrics():
     pd.testing.assert_frame_equal(df, pd.read_csv(path_expected / 'drift.df'), check_dtype=False)
 
 
-test_calculate_metrics()
+# test_calculate_metrics()
