@@ -10,7 +10,7 @@ from collections import OrderedDict
 import pandas as pd
 
 from .. import io
-from .. import new_wrappers
+from .. import unsafe_wrappers
 from .. import wrappers
 
 

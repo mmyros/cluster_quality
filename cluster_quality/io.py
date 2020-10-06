@@ -18,6 +18,7 @@ def load_kilosort_data(folder,
 
     """
     Loads Kilosort output files from a directory
+    Each file Q unique units, but their indices go up to M. There are N spikes. However, M!=Q
     Inputs:
     -------
     folder : String

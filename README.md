@@ -3,6 +3,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/mmyros/cluster_quality/badge.svg)](https://coveralls.io/github/mmyros/cluster_quality)
 # cluster_quality
 Quality metrics based on Allen Institute's 
+
+(see https://github.com/AllenInstitute/ecephys_spike_sorting)
 # Setup
 In Anaconda prompt:
 `pip install -U git+https://github.com/mmyros/cluster_quality.git`
@@ -40,4 +42,9 @@ To inspect it, open in Excel or:
 import pandas as pd
 result=pd.read_csv('quality_metrics.csv')
 print(result.head())
+```
+
+# Notes
+```commandline
+pip install git+https://github.com/AllenInstitute/ecephys_spike_sorting.git
 ```

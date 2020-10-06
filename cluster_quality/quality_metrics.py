@@ -1,10 +1,11 @@
+from sklearn.metrics import silhouette_score
 import numpy as np
 from scipy.ndimage import gaussian_filter1d
 from scipy.spatial.distance import cdist
 from scipy.stats import chi2
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.neighbors import NearestNeighbors
-
+import warnings
 
 
 def isi_violations(spike_train, min_time, max_time, isi_threshold, min_isi=0):
@@ -159,7 +160,7 @@ def mahalanobis_metrics(all_pcs, all_labels, this_unit_id):
 
         dof = pcs_for_this_unit.shape[1]  # number of features
 
-        l_ratio = np.sum(1 - chi2.cdf(pow(mahalanobis_other, 2), dof)) / mahalanobis_other.shape[0]
+        l_ratio = np.sum(1 - chi2.cdf(pow(mahalanobis_other, 2), dof)) / mahalanobis_self.shape[0]
         isolation_distance = pow(mahalanobis_other[n - 1], 2)
 
     else:
@@ -254,3 +255,199 @@ def nearest_neighbors_metrics(all_pcs, all_labels, this_unit_id, max_spikes_for_
     miss_rate = np.mean(other_cluster_nearest < n)
 
     return hit_rate, miss_rate
+
+
+def calculate_silhouette_score(spike_clusters,
+                               spike_templates,
+                               total_units,
+                               pc_features,
+                               pc_feature_ind,
+                               total_spikes,
+                               do_parallel=True):
+    """
+
+    :param spike_clusters:
+    :param pc_features:
+    :param pc_feature_ind:
+    :param total_spikes:
+    :return:
+    """
+    import warnings
+    cluster_ids = np.unique(spike_clusters)
+    random_spike_inds = np.random.permutation(spike_clusters.size)
+    random_spike_inds = random_spike_inds[:total_spikes]
+    num_pc_features = pc_features.shape[1]
+    num_channels = np.max(pc_feature_ind) + 1
+    all_pcs = np.zeros((total_spikes, num_channels * num_pc_features))
+
+    for idx, i in enumerate(random_spike_inds):
+        unit_id = spike_templates[i]
+        channels = pc_feature_ind[unit_id, :]
+
+        for j in range(0, num_pc_features):
+            all_pcs[idx, channels + num_channels * j] = pc_features[i, j, :]
+
+    cluster_labels = spike_clusters[random_spike_inds]
+
+    SS = np.empty((total_units, total_units))
+    SS[:] = np.nan
+    """
+
+for idx1, i in enumerate(cluster_ids):
+    for idx2, j in enumerate(cluster_ids):
+
+        if j > i:
+            inds = np.in1d(cluster_labels, np.array([i,j]))
+            X = all_pcs[inds,:]
+            labels = cluster_labels[inds]
+
+            if len(labels) > 2 and len(np.unique(labels)) > 1:
+                SS[idx1,idx2] = silhouette_score(X, labels)                        
+    """
+
+    def score_inner_loop(i, cluster_ids):
+        """
+        Helper to loop over cluster_ids in one dimension. We dont want to loop over both dimensions in parallel-
+        that will create too much worker overhead
+        Args:
+            i: index of first dimension
+            cluster_ids: iterable of cluster ids
+
+        Returns: scores for dimension j
+
+        """
+        scores_1d = []
+        for j in cluster_ids:
+            if j > i:
+                inds = np.in1d(cluster_labels, np.array([i, j]))
+                X = all_pcs[inds, :]
+                labels = cluster_labels[inds]
+                # len(np.unique(labels))=1 Can happen if total_spikes is low:
+                if (len(labels) > 2) and (len(np.unique(labels)) > 1):
+                    scores_1d.append(silhouette_score(X, labels))
+                else:
+                    scores_1d.append(np.nan)
+            else:
+                scores_1d.append(np.nan)
+        return scores_1d
+
+    # Build lists
+    if do_parallel:
+        from joblib import Parallel, delayed
+        scores = Parallel(n_jobs=-1, verbose=2)(delayed(score_inner_loop)(i, cluster_ids) for i in cluster_ids)
+    else:
+        scores = [score_inner_loop(i, cluster_ids) for i in cluster_ids]
+
+    # Fill the 2d array
+    for i, col_score in enumerate(scores):
+        for j, one_score in enumerate(col_score):
+            SS[i, j] = one_score
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        a = np.nanmin(SS, 0)
+        b = np.nanmin(SS, 1)
+    return np.array([np.nanmin([a, b]) for a, b in zip(a, b)])
+
+
+def calculate_drift_metrics(spike_times,
+                            spike_clusters,
+                            spike_templates,
+                            pc_features,
+                            pc_feature_ind,
+                            interval_length,
+                            min_spikes_per_interval,
+                            do_parallel=True):
+    """
+
+    :param spike_times:
+    :param spike_clusters:
+    :param total_units:
+    :param pc_features:
+    :param pc_feature_ind:
+    :param interval_length:
+    :param min_spikes_per_interval:
+    :return:
+    """
+
+    def get_spike_depths(spike_clusters, pc_features, pc_feature_ind):
+
+        """
+        Calculates the distance (in microns) of individual spikes from the probe tip
+        This implementation is based on Matlab code from github.com/cortex-lab/spikes
+        Input:
+        -----
+        spike_clusters : numpy.ndarray (N x 0)
+            Cluster IDs for N spikes
+        pc_features : numpy.ndarray (N x channels x num_PCs)
+            PC features for each spike
+        pc_feature_ind  : numpy.ndarray (M x channels)
+            Channels used for PC calculation for each unit
+        Output:
+        ------
+        spike_depths : numpy.ndarray (N x 0)
+            Distance (in microns) from each spike waveform from the probe tip
+        """
+
+        pc_features_copy = np.copy(pc_features)
+        pc_features_copy = np.squeeze(pc_features_copy[:, 0, :])
+        pc_features_copy[pc_features_copy < 0] = 0
+        pc_power = pow(pc_features_copy, 2)
+
+        spike_feat_ind = pc_feature_ind[spike_clusters, :]
+        spike_depths = np.sum(spike_feat_ind * pc_power, 1) / np.sum(pc_power, 1)
+
+        return spike_depths * 10
+
+    def calc_one_cluster(cluster_id):
+        """
+        Helper to calculate drift for one cluster
+        Args:
+            cluster_id:
+
+        Returns:
+            max_drift, cumulative_drift
+        """
+        in_cluster = spike_clusters == cluster_id
+        times_for_cluster = spike_times[in_cluster]
+        depths_for_cluster = depths[in_cluster]
+
+        median_depths = []
+
+        for t1, t2 in zip(interval_starts, interval_ends):
+
+            in_range = (times_for_cluster > t1) * (times_for_cluster < t2)
+
+            if np.sum(in_range) >= min_spikes_per_interval:
+                median_depths.append(np.median(depths_for_cluster[in_range]))
+            else:
+                median_depths.append(np.nan)
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")  # RuntimeWarning: All-NaN slice encountered
+            median_depths = np.array(median_depths)
+            max_drift = np.around(np.nanmax(median_depths) - np.nanmin(median_depths), 2)
+            cumulative_drift = np.around(np.nansum(np.abs(np.diff(median_depths))), 2)
+        return max_drift, cumulative_drift
+
+    max_drifts = []
+    cumulative_drifts = []
+
+    depths = get_spike_depths(spike_templates, pc_features, pc_feature_ind)
+
+    interval_starts = np.arange(np.min(spike_times), np.max(spike_times), interval_length)
+    interval_ends = interval_starts + interval_length
+
+    cluster_ids = np.unique(spike_clusters)
+
+    if do_parallel:
+        from joblib import Parallel, delayed
+        meas = Parallel(n_jobs=-1, verbose=2)(delayed(calc_one_cluster)(cluster_id)
+                                              for cluster_id in cluster_ids)
+    else:
+        meas = [calc_one_cluster(cluster_id) for cluster_id in cluster_ids]
+
+    for max_drift, cumulative_drift in meas:
+        max_drifts.append(max_drift)
+        cumulative_drifts.append(max_drift)
+    return np.array(max_drifts), np.array(cumulative_drifts)
