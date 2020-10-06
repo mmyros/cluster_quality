@@ -131,7 +131,7 @@ def calculate_pc_metrics(spike_clusters,
         #     meas = Wrappers.calculate_pc_metrics_one_cluster(**args)
         #     return meas
 
-        meas = Parallel(n_jobs=-1, verbose=10)(  # -1 means use all cores
+        meas = Parallel(n_jobs=-1, verbose=12)(  # -1 means use all cores
             delayed(calculate_pc_metrics_one_cluster)  # Function
             (peak_channels, cluster_id, half_spread, pc_features, pc_feature_ind,  # Arguments
              spike_clusters, max_spikes_for_cluster, max_spikes_for_nn, n_neighbors

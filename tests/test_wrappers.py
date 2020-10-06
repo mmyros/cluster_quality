@@ -65,7 +65,7 @@ def test_calculate_metrics():
 
     import numpy as np
     # Subsample for speed
-    i = np.random.randint(0, spike_clusters.shape[0], int(spike_clusters.shape[0] / 10))
+    i = np.random.randint(0, spike_clusters.shape[0], int(spike_clusters.shape[0] / 20))
     (spike_times, spike_clusters, spike_templates, amplitudes, pc_features) = (
         spike_times[i], spike_clusters[i], spike_templates[i], amplitudes[i], pc_features[i])
 
