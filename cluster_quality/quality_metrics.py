@@ -334,7 +334,7 @@ for idx1, i in enumerate(cluster_ids):
     # Build lists
     if do_parallel:
         from joblib import Parallel, delayed
-        scores = Parallel(n_jobs=-1, verbose=2)(delayed(score_inner_loop)(i, cluster_ids) for i in cluster_ids)
+        scores = Parallel(n_jobs=-1, verbose=7)(delayed(score_inner_loop)(i, cluster_ids) for i in cluster_ids)
     else:
         scores = [score_inner_loop(i, cluster_ids) for i in cluster_ids]
 
@@ -442,7 +442,7 @@ def calculate_drift_metrics(spike_times,
 
     if do_parallel:
         from joblib import Parallel, delayed
-        meas = Parallel(n_jobs=-1, verbose=2)(delayed(calc_one_cluster)(cluster_id)
+        meas = Parallel(n_jobs=-1, verbose=7)(delayed(calc_one_cluster)(cluster_id)
                                               for cluster_id in cluster_ids)
     else:
         meas = [calc_one_cluster(cluster_id) for cluster_id in cluster_ids]

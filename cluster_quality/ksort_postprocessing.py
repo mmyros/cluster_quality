@@ -67,7 +67,8 @@ def find_between_unit_overlap(spike_train1, spike_train2, overlap_window=5):
     return spikes_to_remove1, spikes_to_remove2
 
 
-def remove_spikes(spike_times, spike_clusters, spike_templates, amplitudes, pc_features, spikes_to_remove):
+def remove_spikes(spike_times, spike_clusters, spike_templates=None, amplitudes=None, pc_features=None,
+                  spikes_to_remove=None):
     """
     Removes spikes from Kilosort outputs
     Inputs:
@@ -95,10 +96,12 @@ def remove_spikes(spike_times, spike_clusters, spike_templates, amplitudes, pc_f
     spikes_to_remove = spikes_to_remove.astype(int)
     spike_times = np.delete(spike_times, spikes_to_remove, 0)
     spike_clusters = np.delete(spike_clusters, spikes_to_remove, 0)
-    spike_templates = np.delete(spike_templates, spikes_to_remove, 0)
-    amplitudes = np.delete(amplitudes, spikes_to_remove, 0)
-    pc_features = np.delete(pc_features, spikes_to_remove, 0)
-
+    if not(spike_templates is None):
+        spike_templates = np.delete(spike_templates, spikes_to_remove, 0)
+    if not (amplitudes is None):
+        amplitudes = np.delete(amplitudes, spikes_to_remove, 0)
+    if not (pc_features is None):
+        pc_features = np.delete(pc_features, spikes_to_remove, 0)
     return spike_times, spike_clusters, spike_templates, amplitudes, pc_features
 
 
@@ -181,30 +184,25 @@ def remove_double_counted_spikes(spike_times, spike_clusters, spike_templates, a
     spikes_to_remove = np.zeros((0,))
 
     for idx1, unit_id1 in enumerate(unit_list[order]):
-
         for_unit1 = np.where(spike_clusters == unit_id1)[0]
-
         for idx2, unit_id2 in enumerate(unit_list[order]):
-
             if idx2 > idx1 and (np.abs(peak_channels[unit_id1] - peak_channels[unit_id2]) <
                                 between_unit_channel_distance):
                 for_unit2 = np.where(spike_clusters == unit_id2)[0]
 
                 to_remove1, to_remove2 = find_between_unit_overlap(spike_times[for_unit1], spike_times[for_unit2],
                                                                    between_unit_overlap_samples)
-
                 overlap_matrix[idx1, idx2] = len(to_remove1) + len(to_remove2)
-
                 spikes_to_remove = np.concatenate((spikes_to_remove, for_unit1[to_remove1], for_unit2[to_remove2]))
-
     print(f'Overlapping spikes to remove: {np.unique(spikes_to_remove)}')
     try:
         spike_times, spike_clusters, spike_templates, amplitudes, pc_features = remove_spikes(spike_times,
-                                                                                          spike_clusters,
-                                                                                          spike_templates,
-                                                                                          amplitudes,
-                                                                                          pc_features,
-                                                                                          np.unique(spikes_to_remove))
+                                                                                              spike_clusters,
+                                                                                              spike_templates,
+                                                                                              amplitudes,
+                                                                                              pc_features,
+                                                                                              np.unique(
+                                                                                                  spikes_to_remove))
     except IndexError as e:
         print(e)
         print('Cannot remove overlapping spikes due to error above ')

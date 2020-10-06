@@ -2,6 +2,8 @@ from cluster_quality import io
 from tests import test_dependencies
 from cluster_quality import ksort_postprocessing
 
+import numpy as np
+
 
 def test_remove_double_counted_spikes():
     ### SinglePhase3
@@ -22,7 +24,6 @@ def test_remove_double_counted_spikes():
                                                            templates,
                                                            pc_features,
                                                            sample_rate=3e4)
-    assert sum(spike_times)>0
-    import numpy as np
+    assert sum(spike_times) > 0
     assert np.isclose(sum(spike_times), 12437925816.246)
-    assert spike_times.shape[0]==6941125
+    assert spike_times.shape[0] == 6941125
