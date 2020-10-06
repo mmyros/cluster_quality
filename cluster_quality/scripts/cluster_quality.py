@@ -13,6 +13,8 @@ from .. import io
 from .. import ksort_postprocessing
 from ..wrappers import calculate_metrics
 import warnings
+
+
 @click.command()
 @click.option('--kilosort_folder', default=None, help='kilosort_folder to read from and write to')
 @click.option('--do_parallel', default=1, help='Parallel or not, 0 or 1')
@@ -22,8 +24,8 @@ import warnings
 def cli(kilosort_folder=None, do_parallel=True, do_pc_features=True, do_silhouette=True, do_drift=True, fs=3e4):
     """ Calculate metrics for all units on one probe"""
     # kilosort_folder = '~/res_ss_full/res_ss/tcloop_train_m022_1553627381_'
-    if (np.array([do_parallel,do_pc_features, do_silhouette,do_drift])=='False'|
-        np.array([do_parallel, do_pc_features, do_silhouette, do_drift]) == 'True'):
+    if (('False' in [do_parallel, do_pc_features, do_silhouette, do_drift]) |
+            ('True' in [do_parallel, do_pc_features, do_silhouette, do_drift])):
         warnings.warn('Please dont use True or False for input from command line! use 0 or 1 instead')
     if kilosort_folder is None:
         kilosort_folder = os.getcwd()
@@ -44,14 +46,14 @@ def cli(kilosort_folder=None, do_parallel=True, do_pc_features=True, do_silhouet
         (the_spike_times, the_spike_clusters, the_spike_templates,
          the_amplitudes, the_pc_features,
          the_overlap_matrix) = ksort_postprocessing.remove_double_counted_spikes(the_spike_times,
-                                                                            the_spike_clusters,
-                                                                            the_spike_templates,
-                                                                            the_amplitudes,
-                                                                            the_channel_map,
-                                                                            the_templates,
-                                                                            the_pc_features,
-                                                                            sample_rate=fs)
-    except IndexError as e: # IndexError
+                                                                                 the_spike_clusters,
+                                                                                 the_spike_templates,
+                                                                                 the_amplitudes,
+                                                                                 the_channel_map,
+                                                                                 the_templates,
+                                                                                 the_pc_features,
+                                                                                 sample_rate=fs)
+    except IndexError as e:  # IndexError
         print(e)
         print('Cannot remove overlapping spikes due to error above ')
 

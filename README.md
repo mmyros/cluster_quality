@@ -24,7 +24,7 @@ pip install click numpy scipy scikit-learn pandas joblib
 cd path/to/sorting
 cluster_quality 
 OR (from any path):
-cluster_quality --do_parallel=0 --do_drift=0 --kilosort-folder=path/to/sorting 
+cluster_quality --do_parallel=0 --do_drift=0 --kilosort_folder=path/to/sorting 
 ```
 cluster_quality -h for more options
 
