@@ -45,6 +45,14 @@ print(result.head())
 ```
 
 # Notes
+- List of required files after sorting:
+```
+'amplitudes.npy', 'channel_map.npy', 'channel_positions.npy',
+'cluster_groups.csv' or 'cluster_group.tsv',
+ 'spike_clusters.npy', 'spike_templates.npy', 'spike_times.npy',
+ 'templates.npy', 'templates_ind.npy', 'whitening_mat_inv.npy'
+```
+- For original Allen implementation:
 ```
 pip install git+https://github.com/AllenInstitute/ecephys_spike_sorting.git
 ```
