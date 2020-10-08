@@ -6,6 +6,7 @@ notifications:
 before_install:
  - python --version
  - pip install -U cython setuptools pip numpy
+ - git clone https://gitlab.com/mmyros/public_spikesorting_datasets.git ~/ # Extra test data
 
 install:
   - pip install -r requirements.txt

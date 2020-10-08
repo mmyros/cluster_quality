@@ -49,7 +49,8 @@ def test_calculate_metrics():
      ) = io.load_kilosort_data(base_path, include_pcs=False, sample_rate=3e4)
 
     # Subsample for speed
-    i = np.random.randint(0, spike_clusters.shape[0], int(spike_clusters.shape[0] / 50))
+    i = np.arange(0, spike_clusters.shape[0], 50)  # last number is subsampling factor
+    # i = np.random.randint(0, spike_clusters.shape[0], int(spike_clusters.shape[0] / 50))
     (spike_times, spike_clusters, spike_templates, amplitudes) = (
         spike_times[i], spike_clusters[i], spike_templates[i], amplitudes[i])
 
@@ -66,7 +67,8 @@ def test_calculate_metrics():
      ) = io.load_kilosort_data(base_path, include_pcs=True, sample_rate=3e4)
 
     # Subsample for speed
-    i = np.random.randint(0, spike_clusters.shape[0], int(spike_clusters.shape[0] / 50))
+    i = np.arange(0, spike_clusters.shape[0], 50)  # last number is subsampling factor
+    # i = np.random.randint(0, spike_clusters.shape[0], int(spike_clusters.shape[0] / 50))
     (spike_times, spike_clusters, spike_templates, amplitudes, pc_features) = (
         spike_times[i], spike_clusters[i], spike_templates[i], amplitudes[i], pc_features[i])
 
