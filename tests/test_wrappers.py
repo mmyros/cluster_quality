@@ -59,7 +59,7 @@ def test_calculate_metrics():
                                     pc_feature_ind,
                                     output_folder=None, do_parallel=False,
                                     do_pc_features=False, do_silhouette=False, do_drift=False)
-    df.to_csv(path_expected / 'timing_metrics.df', index=False)
+    # df.to_csv(path_expected / 'timing_metrics.df', index=False)  # Uncomment this if results must change
     df1 = pd.read_csv(path_expected / 'timing_metrics.df')
     pd.testing.assert_frame_equal(df, df1, check_dtype=False)
 
@@ -76,21 +76,21 @@ def test_calculate_metrics():
                                     pc_feature_ind,
                                     output_folder=None, do_parallel=True,
                                     do_pc_features=True, do_silhouette=False, do_drift=False)
-    df.to_csv(path_expected / 'pc_features.df', index=False)
+    # df.to_csv(path_expected / 'pc_features.df', index=False)  # Uncomment this if results must change
     pd.testing.assert_frame_equal(df, pd.read_csv(path_expected / 'pc_features.df'), check_dtype=False)
 
     df = wrappers.calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, pc_features,
                                     pc_feature_ind,
                                     output_folder=None, do_parallel=True,
                                     do_pc_features=False, do_silhouette=True, do_drift=False)
-    df.to_csv(path_expected / 'silhouette.df', index=False)
+    # df.to_csv(path_expected / 'silhouette.df', index=False)  # Uncomment this if results must change
     pd.testing.assert_frame_equal(df, pd.read_csv(path_expected / 'silhouette.df'), check_dtype=False)
 
     df = wrappers.calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, pc_features,
                                     pc_feature_ind,
                                     output_folder=None, do_parallel=True,
                                     do_pc_features=False, do_silhouette=False, do_drift=True)
-    df.to_csv(path_expected / 'drift.df', index=False)
+    # df.to_csv(path_expected / 'drift.df', index=False)  # Uncomment this if results must change
     pd.testing.assert_frame_equal(df, pd.read_csv(path_expected / 'drift.df'), check_dtype=False)
 
 
