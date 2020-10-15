@@ -327,6 +327,8 @@ def calculate_silhouette_score(spike_clusters,
 
     # Fill the 2d array
     for i, col_score in enumerate(scores):
+        if np.isnan(col_score).all():
+            warnings.warn(f'Cluster {i} has all-nan col_score. It will have nan silouette score')
         for j, one_score in enumerate(col_score):
             SS[i, j] = one_score
 
@@ -380,6 +382,9 @@ def calculate_drift_metrics(spike_times,
         pc_features_copy = np.squeeze(pc_features_copy[:, 0, :])
         pc_features_copy[pc_features_copy < 0] = 0
         pc_power = pow(pc_features_copy, 2)
+        if np.isnan(pc_power).any():
+            nan_clusters = spike_clusters[np.isnan(pc_power)]
+            warnings.warn(f'pc_power for {nan_clusters} are nan')
 
         spike_feat_ind = pc_feature_ind[spike_clusters, :]
         spike_depths = np.sum(spike_feat_ind * pc_power, 1) / np.sum(pc_power, 1)
