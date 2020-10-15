@@ -4,7 +4,7 @@ import urllib3
 
 
 def download_test_data(base_url='http://data.cortexlab.net/singlePhase3/data/',
-                       base_path='tests/test_data/',
+                       base_path='test_data/',
                        download_features=True
                        ):
     # Add name of dataset:

@@ -24,7 +24,7 @@ def test_calculate_isi_violations():
     ### SinglePhase3
     base_path, files = test_dependencies.download_test_data(
         base_url='http://data.cortexlab.net/singlePhase3/data/',
-        base_path='tests/test_data/', download_features=False)
+        base_path='test_data/', download_features=False)
     (spike_times, spike_clusters, spike_templates, templates, amplitudes,
      unwhitened_temps, channel_map, cluster_ids, cluster_quality, pc_features, pc_feature_ind
      ) = io.load_kilosort_data(base_path, include_pcs=False, sample_rate=3e4)
@@ -40,9 +40,11 @@ def test_calculate_isi_violations():
 def download_and_load(include_pcs=True):
     # SinglePhase3
     base_path, files = test_dependencies.download_test_data(base_url='http://data.cortexlab.net/singlePhase3/data/',
-                                                            base_path='tests/test_data/',
+                                                            base_path='test_data/',
                                                             download_features=True)
-    path_expected = Path(f'../../expected_output/{base_path.parts[-1]}')
+    path_expected = Path(f'expected_output/{base_path.parts[-1]}')
+    if not path_expected.parent.exists():
+        path_expected = Path(f'../../expected_output/{base_path.parts[-1]}')
     path_expected.mkdir(parents=False, exist_ok=True)
     (spike_times, spike_clusters, spike_templates, templates, amplitudes, unwhitened_temps,
      channel_map, cluster_ids, cluster_quality, pc_features, pc_feature_ind
@@ -51,8 +53,8 @@ def download_and_load(include_pcs=True):
     # Subsample for speed
     i = np.arange(0, spike_clusters.shape[0], 50)  # last number is subsampling factor
     # i = np.random.randint(0, spike_clusters.shape[0], int(spike_clusters.shape[0] / 50))
-    (spike_times, spike_clusters, spike_templates, amplitudes, pc_features) = (
-        spike_times[i], spike_clusters[i], spike_templates[i], amplitudes[i], pc_features[i])
+    (spike_times, spike_clusters, spike_templates, amplitudes) = (
+        spike_times[i], spike_clusters[i], spike_templates[i], amplitudes[i])
     if include_pcs:
         pc_features = pc_features[i]
 

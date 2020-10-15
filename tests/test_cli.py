@@ -18,7 +18,7 @@ def test_cli():
     runner = CliRunner()
     base_path, files = test_dependencies.download_test_data(
         base_url='http://data.cortexlab.net/singlePhase3/data/',
-        base_path='tests/test_data/', download_features=False)
+        base_path='test_data/', download_features=False)
     os.chdir(base_path)
     result = runner.invoke(cluster_quality.cli, '--do_pc_features=0 --do_silhouette=0 --do_drift=0')
     assert result.exit_code == 0
@@ -29,7 +29,7 @@ def test_cli():
 #     runner = CliRunner()
 #     base_path, files = test_dependencies.download_test_data(
 #         base_url='http://data.cortexlab.net/singlePhase3/data/',
-#         base_path='tests/test_data/', download_features=False)
+#         base_path='test_data/', download_features=False)
 #
 #     result = runner.invoke(
 #         cluster_quality.cli,
