@@ -272,7 +272,7 @@ def calculate_silhouette_score(spike_clusters,
     :param total_spikes:
     :return:
     """
-    import warnings
+
     cluster_ids = np.unique(spike_clusters)
     random_spike_inds = np.random.permutation(spike_clusters.size)
     random_spike_inds = random_spike_inds[:total_spikes]
@@ -291,19 +291,6 @@ def calculate_silhouette_score(spike_clusters,
 
     SS = np.empty((total_units, total_units))
     SS[:] = np.nan
-    """
-
-for idx1, i in enumerate(cluster_ids):
-    for idx2, j in enumerate(cluster_ids):
-
-        if j > i:
-            inds = np.in1d(cluster_labels, np.array([i,j]))
-            X = all_pcs[inds,:]
-            labels = cluster_labels[inds]
-
-            if len(labels) > 2 and len(np.unique(labels)) > 1:
-                SS[idx1,idx2] = silhouette_score(X, labels)                        
-    """
 
     def score_inner_loop(i, cluster_ids):
         """
@@ -443,7 +430,7 @@ def calculate_drift_metrics(spike_times,
     if do_parallel:
         from joblib import Parallel, delayed
         meas = Parallel(n_jobs=-1, verbose=12)(delayed(calc_one_cluster)(cluster_id)
-                                              for cluster_id in cluster_ids)
+                                               for cluster_id in cluster_ids)
     else:
         meas = [calc_one_cluster(cluster_id) for cluster_id in cluster_ids]
 

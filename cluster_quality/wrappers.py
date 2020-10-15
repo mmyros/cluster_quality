@@ -1,12 +1,14 @@
-import numpy as np
-
-from . import quality_metrics
+import warnings
 import os
 import pandas as pd
 import numpy as np
-from collections import OrderedDict
-# from .wrappers import * # Except calculate_pc_metrics and calculate_metrics - they will be replaced below
 from tqdm import tqdm
+
+from collections import OrderedDict
+from . import quality_metrics
+
+
+# from .wrappers import * # Except calculate_pc_metrics and calculate_metrics - they will be replaced below
 
 
 def calculate_isi_violations(spike_times, spike_clusters, isi_threshold, min_isi):
@@ -275,7 +277,7 @@ def calculate_pc_metrics_one_cluster(cluster_peak_channels, idx, cluster_id, clu
 
     all_pcs = np.reshape(all_pcs, (all_pcs.shape[0], pc_features.shape[1] * channels_to_use.size))
     if ((all_pcs.shape[0] > 10)
-            and not (all_labels == cluster_id).all()  # Not all lablels are this cluster
+            and not (all_labels == cluster_id).all()  # Not all labels are in this cluster
             and (sum(all_labels == cluster_id) > 20)  # No fewer than 20 spikes in this cluster
             and (len(channels_to_use) > 0)):
 
@@ -291,6 +293,15 @@ def calculate_pc_metrics_one_cluster(cluster_peak_channels, idx, cluster_id, clu
         nn_miss_rate = np.nan
         nn_hit_rate = np.nan
         l_ratio = np.nan
+
+        # Make warnings
+        if sum(all_labels == cluster_id) > 20:
+            warnings.warn(f'Fewer than 20 spikes in cluster {cluster_id}! feature metrics will be nan')
+        elif not (all_labels == cluster_id).all():
+            warnings.warn(f'Not all labels are in cluster {cluster_id}! feature metrics will be nan')
+        elif all_pcs.shape[0] < 10:
+            warnings.warn(f'Less than 10 pcs in {cluster_id}! feature metrics will be nan')
+
     return isolation_distance, d_prime, nn_miss_rate, nn_hit_rate, l_ratio
 
 
@@ -419,7 +430,6 @@ def calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, 
         metrics = pd.concat([metrics, metrics2], axis=1)
     if do_drift:
         print("Calculating drift metrics")
-        # TODO [in_epoch] has to go. Need to modify loading function
         max_drift, cumulative_drift = quality_metrics.calculate_drift_metrics(spike_times,
                                                                               spike_clusters,
                                                                               spike_templates,
