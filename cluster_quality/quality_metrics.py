@@ -257,6 +257,33 @@ def nearest_neighbors_metrics(all_pcs, all_labels, this_unit_id, max_spikes_for_
     return hit_rate, miss_rate
 
 
+def score_inner_loop(i, cluster_ids, cluster_labels):
+    """
+    Helper to loop over cluster_ids in one dimension. We dont want to loop over both dimensions in parallel-
+    that will create too much worker overhead
+    Args:
+        i: index of first dimension
+        cluster_ids: iterable of cluster ids
+
+    Returns: scores for dimension j
+
+    """
+    scores_1d = []
+    for j in cluster_ids:
+        if j > i:
+            inds = np.in1d(cluster_labels, np.array([i, j]))
+            X = all_pcs[inds, :]
+            labels = cluster_labels[inds]
+            # len(np.unique(labels))=1 Can happen if total_spikes is low:
+            if (len(labels) > 2) and (len(np.unique(labels)) > 1):
+                scores_1d.append(silhouette_score(X, labels))
+            else:
+                scores_1d.append(np.nan)
+        else:
+            scores_1d.append(np.nan)
+        return scores_1d
+
+
 def calculate_silhouette_score(spike_clusters,
                                spike_templates,
                                total_units,
@@ -292,38 +319,13 @@ def calculate_silhouette_score(spike_clusters,
     SS = np.empty((total_units, total_units))
     SS[:] = np.nan
 
-    def score_inner_loop(i, cluster_ids):
-        """
-        Helper to loop over cluster_ids in one dimension. We dont want to loop over both dimensions in parallel-
-        that will create too much worker overhead
-        Args:
-            i: index of first dimension
-            cluster_ids: iterable of cluster ids
-
-        Returns: scores for dimension j
-
-        """
-        scores_1d = []
-        for j in cluster_ids:
-            if j > i:
-                inds = np.in1d(cluster_labels, np.array([i, j]))
-                X = all_pcs[inds, :]
-                labels = cluster_labels[inds]
-                # len(np.unique(labels))=1 Can happen if total_spikes is low:
-                if (len(labels) > 2) and (len(np.unique(labels)) > 1):
-                    scores_1d.append(silhouette_score(X, labels))
-                else:
-                    scores_1d.append(np.nan)
-            else:
-                scores_1d.append(np.nan)
-        return scores_1d
-
     # Build lists
     if do_parallel:
         from joblib import Parallel, delayed
-        scores = Parallel(n_jobs=-1, verbose=12)(delayed(score_inner_loop)(i, cluster_ids) for i in cluster_ids)
+        scores = Parallel(n_jobs=-1, verbose=12)(
+            delayed(score_inner_loop)(i, cluster_ids, cluster_labels) for i in cluster_ids)
     else:
-        scores = [score_inner_loop(i, cluster_ids) for i in cluster_ids]
+        scores = [score_inner_loop(i, cluster_ids, cluster_labels) for i in cluster_ids]
 
     # Fill the 2d array
     for i, col_score in enumerate(scores):

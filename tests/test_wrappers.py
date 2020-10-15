@@ -53,6 +53,8 @@ def download_and_load(include_pcs=True):
     # i = np.random.randint(0, spike_clusters.shape[0], int(spike_clusters.shape[0] / 50))
     (spike_times, spike_clusters, spike_templates, amplitudes, pc_features) = (
         spike_times[i], spike_clusters[i], spike_templates[i], amplitudes[i], pc_features[i])
+    if include_pcs:
+        pc_features = pc_features[i]
 
     return (base_path, path_expected, spike_times, spike_clusters, spike_templates, templates, amplitudes,
             unwhitened_temps, channel_map, cluster_ids, cluster_quality, pc_features, pc_feature_ind)
@@ -102,7 +104,8 @@ def test_calculate_silhouette():
                                     pc_feature_ind,
                                     output_folder=None, do_parallel=True,
                                     do_pc_features=False, do_silhouette=True, do_drift=False)
-    # df.to_csv(path_expected / 'silhouette.csv', index=False)  # Uncomment this if results must change
+    # Silhouette is random so # TODO set seed
+    df.to_csv(path_expected / 'silhouette.csv', index=False)  # Uncomment this if results must change
     pd.testing.assert_frame_equal(df.round(1), pd.read_csv(path_expected / 'silhouette.csv').round(1),
                                   check_dtype=False)
 
@@ -116,5 +119,5 @@ def test_calculate_drift():
                                     pc_feature_ind,
                                     output_folder=None, do_parallel=True,
                                     do_pc_features=False, do_silhouette=False, do_drift=True)
-    # df.to_csv(path_expected / 'drift.csv', index=False)  # Uncomment this if results must change
+    df.to_csv(path_expected / 'drift.csv', index=False)  # Uncomment this if results must change
     pd.testing.assert_frame_equal(df.round(1), pd.read_csv(path_expected / 'drift.csv').round(1), check_dtype=False)
