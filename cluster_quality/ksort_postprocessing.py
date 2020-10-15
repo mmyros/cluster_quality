@@ -20,7 +20,7 @@ def find_within_unit_overlap(spike_train, overlap_window=5):
         Spike times (in samples)
     overlap_window : int
         Number of samples to search for overlapping spikes
-    Outputs
+    Outputs:
     -------
     spikes_to_remove : numpy.ndarray
         Indices of overlapping spikes in spike_train
