@@ -156,6 +156,8 @@ def mahalanobis_metrics(all_pcs, all_labels, this_unit_id):
 
     n = np.min([pcs_for_this_unit.shape[0], pcs_for_other_units.shape[0]])  # number of spikes
 
+    if np.isnan(mahalanobis_other.any()):
+        warnings.warn(f'Nans in mahalanobis_other for cluster {this_unit_id}. l_ratio will be nan')
     if n >= 2:
 
         dof = pcs_for_this_unit.shape[1]  # number of features
@@ -257,16 +259,14 @@ def nearest_neighbors_metrics(all_pcs, all_labels, this_unit_id, max_spikes_for_
     return hit_rate, miss_rate
 
 
-def score_inner_loop(i, cluster_ids, cluster_labels):
+def silhouette_score_inner_loop(i, cluster_ids, cluster_labels, all_pcs):
     """
     Helper to loop over cluster_ids in one dimension. We dont want to loop over both dimensions in parallel-
     that will create too much worker overhead
     Args:
         i: index of first dimension
         cluster_ids: iterable of cluster ids
-
     Returns: scores for dimension j
-
     """
     scores_1d = []
     for j in cluster_ids:
@@ -281,8 +281,7 @@ def score_inner_loop(i, cluster_ids, cluster_labels):
                 scores_1d.append(np.nan)
         else:
             scores_1d.append(np.nan)
-        return scores_1d
-
+    return scores_1d
 
 def calculate_silhouette_score(spike_clusters,
                                spike_templates,
@@ -292,14 +291,13 @@ def calculate_silhouette_score(spike_clusters,
                                total_spikes,
                                do_parallel=True):
     """
-
     :param spike_clusters:
     :param pc_features:
     :param pc_feature_ind:
     :param total_spikes:
     :return:
     """
-
+    import warnings
     cluster_ids = np.unique(spike_clusters)
     random_spike_inds = np.random.permutation(spike_clusters.size)
     random_spike_inds = random_spike_inds[:total_spikes]
@@ -322,15 +320,15 @@ def calculate_silhouette_score(spike_clusters,
     # Build lists
     if do_parallel:
         from joblib import Parallel, delayed
-        scores = Parallel(n_jobs=-1, verbose=12)(
-            delayed(score_inner_loop)(i, cluster_ids, cluster_labels) for i in cluster_ids)
+        scores = Parallel(n_jobs=-1, verbose=12)(delayed(silhouette_score_inner_loop)
+                                                 (i, cluster_ids, cluster_labels, all_pcs) for i in cluster_ids)
     else:
-        scores = [score_inner_loop(i, cluster_ids, cluster_labels) for i in cluster_ids]
+        scores = [silhouette_score_inner_loop(i, cluster_ids, cluster_labels, all_pcs) for i in cluster_ids]
 
     # Fill the 2d array
     for i, col_score in enumerate(scores):
         if np.isnan(col_score).all():
-            warnings.warn(f'Cluster {i} has all-nan col_score. It will have nan silouette score')
+            warnings.warn(f'Cluster {i} has all-nan col_score. It will have nan silhouette score')
         for j, one_score in enumerate(col_score):
             SS[i, j] = one_score
 
@@ -436,8 +434,8 @@ def calculate_drift_metrics(spike_times,
 
     if do_parallel:
         from joblib import Parallel, delayed
-        meas = Parallel(n_jobs=-1, verbose=12)(delayed(calc_one_cluster)(cluster_id)
-                                               for cluster_id in cluster_ids)
+        meas = Parallel(n_jobs=-1, verbose=2)(delayed(calc_one_cluster)(cluster_id)
+                                              for cluster_id in cluster_ids)
     else:
         meas = [calc_one_cluster(cluster_id) for cluster_id in cluster_ids]
 
