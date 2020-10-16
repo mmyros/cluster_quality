@@ -14,7 +14,7 @@ install:
   - pip install pytest-cov
   - pip install coveralls
   - pip install codecov
-script: pytest --cov=cluster_quality tests/ -s
+script: pytest --cov=cluster_quality tests/
 after_success:
   - codecov
   - coveralls

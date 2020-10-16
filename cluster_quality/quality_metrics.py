@@ -320,8 +320,8 @@ def calculate_silhouette_score(spike_clusters,
     # Build lists
     if do_parallel:
         from joblib import Parallel, delayed
-        scores = Parallel(n_jobs=-1, verbose=12)(delayed(silhouette_score_inner_loop)
-                                                 (i, cluster_ids, cluster_labels, all_pcs) for i in cluster_ids)
+        scores = Parallel(n_jobs=-1, verbose=2)(delayed(silhouette_score_inner_loop)
+                                                (i, cluster_ids, cluster_labels, all_pcs) for i in cluster_ids)
     else:
         scores = [silhouette_score_inner_loop(i, cluster_ids, cluster_labels, all_pcs) for i in cluster_ids]
 
