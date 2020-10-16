@@ -45,8 +45,7 @@ def download_and_load(include_pcs=True, subsample=50):
                                                             download_features=True)
     path_expected = Path(f'expected_output/{base_path.parts[-1]}')
     if not path_expected.parent.exists():
-        print(path_expected.absolute())
-        path_expected = Path(f'cluster_quality/tests/expected_output/{base_path.parts[-1]}')
+        path_expected = Path(f'tests/expected_output/{base_path.parts[-1]}')
     path_expected.mkdir(parents=False, exist_ok=True)
     (spike_times, spike_clusters, spike_templates, templates, amplitudes, unwhitened_temps,
      channel_map, cluster_ids, cluster_quality, pc_features, pc_feature_ind
