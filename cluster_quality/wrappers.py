@@ -10,14 +10,10 @@ from tqdm import tqdm
 
 
 def calculate_isi_violations(spike_times, spike_clusters, isi_threshold, min_isi):
-    cluster_ids = np.unique(spike_clusters)
-
     viol_rates = []
     viol_ns = []
-
-    for idx, cluster_id in enumerate(cluster_ids):
-        for_this_cluster = (spike_clusters == cluster_id)
-        viol_rate, viol_n = quality_metrics.isi_violations(spike_times[for_this_cluster],
+    for cluster_id in np.unique(spike_clusters):
+        viol_rate, viol_n = quality_metrics.isi_violations(spike_times[spike_clusters == cluster_id],
                                                            min_time=np.min(spike_times),
                                                            max_time=np.max(spike_times),
                                                            isi_threshold=isi_threshold,
@@ -26,6 +22,11 @@ def calculate_isi_violations(spike_times, spike_clusters, isi_threshold, min_isi
         viol_ns.append(viol_n)
 
     return np.array(viol_rates), np.array(viol_ns)
+
+
+def calculate_n_spikes(spike_clusters):
+
+    return  np.array([sum(spike_clusters==cluster_id) for cluster_id in np.unique(spike_clusters)])
 
 
 def calculate_presence_ratio(spike_times, spike_clusters):
@@ -348,9 +349,11 @@ def calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, 
 
     cluster_ids = np.unique(spike_clusters)
     total_units = len(np.unique(spike_clusters))
+
+    n_spikes_per_cluster = calculate_n_spikes(spike_clusters)
+
+    print(f'Found {total_units} clusters. {sum(n_spikes_per_cluster>20)} of them have >20 spikes')
     print("Calculating isi violations")
-    print(spike_clusters)
-    print(total_units)
     isi_viol_rate, isi_viol_n = calculate_isi_violations(spike_times, spike_clusters, isi_threshold, min_isi)
 
     print("Calculating presence ratio")
