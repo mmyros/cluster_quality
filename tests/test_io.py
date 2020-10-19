@@ -5,7 +5,7 @@ from tests.test_dependencies import download_test_data
 def test_load_kilosort_data():
     ### SinglePhase3
     base_path, files = download_test_data(base_url='http://data.cortexlab.net/singlePhase3/data/',
-                                          base_path='tests/test_data/')
+                                          base_path='test_data/')
     outputs = io.load_kilosort_data(base_path, include_pcs=True, sample_rate=3e4)
     assert sum([output is None for output in outputs]) == 0, f'Missing some files? Some outputs are None: {outputs}'
     (spike_times, spike_clusters, spike_templates, templates, amplitudes,
@@ -18,7 +18,7 @@ def test_load_kilosort_data():
     print([])
     ### doublePhase3 (has no feature files available)
     base_path, files = download_test_data(base_url='http://data.cortexlab.net/dualPhase3/data/frontal/',
-                                          base_path='tests/test_data/')
+                                          base_path='test_data/')
     outputs = io.load_kilosort_data(base_path, include_pcs=False, sample_rate=3e4)
     # All except last two outputs:
     assert sum([output is None for output in outputs[:-2]]) == 0, \

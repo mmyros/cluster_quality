@@ -1,12 +1,14 @@
-import numpy as np
-
-from . import quality_metrics
+import warnings
 import os
 import pandas as pd
 import numpy as np
-from collections import OrderedDict
-# from .wrappers import * # Except calculate_pc_metrics and calculate_metrics - they will be replaced below
 from tqdm import tqdm
+
+from collections import OrderedDict
+from . import quality_metrics
+
+
+# from .wrappers import * # Except calculate_pc_metrics and calculate_metrics - they will be replaced below
 
 
 def calculate_isi_violations(spike_times, spike_clusters, isi_threshold, min_isi):
@@ -135,7 +137,7 @@ def calculate_pc_metrics(spike_clusters,
     # Loop over clusters:
     if do_parallel:
         from joblib import Parallel, delayed
-        meas = Parallel(n_jobs=-1, verbose=12)(  # -1 means use all cores
+        meas = Parallel(n_jobs=-1, verbose=2)(  # -1 means use all cores
             # delayed(Wrappers.calculate_pc_metrics_one_cluster_old)  # Function
             # (template_peak_channels, cluster_id, half_spread, pc_features, pc_feature_ind, spike_clusters,  # Inputs
             #  max_spikes_for_cluster, max_spikes_for_nn, n_neighbors)
@@ -268,16 +270,23 @@ def calculate_pc_metrics_one_cluster(cluster_peak_channels, idx, cluster_id, clu
                            pc_feature_ind, pc_features, channels_to_use,
                            subsample)
 
-        if pcs is not None and len(pcs.shape) == 3:
+        if pcs is not None and pcs.ndim == 3:
             labels = np.ones((pcs.shape[0],)) * cluster_id2
 
             all_pcs = np.concatenate((all_pcs, pcs), 0)
             all_labels = np.concatenate((all_labels, labels), 0)
+        elif cluster_id2 == cluster_id:
+            warnings.warn(f'No PCs for Cluster {cluster_id} in channels {channels_to_use}! feature metrics will be nan')
+            return tuple(np.repeat(np.nan, 5))
+
+    # Check no fewer than 20 spikes in this cluster
+    if sum(all_labels == cluster_id) > 20:
+        warnings.warn(f'Fewer than 20 spikes in cluster {cluster_id}! feature metrics will be nan')
+        return tuple(np.repeat(np.nan, 5))
 
     all_pcs = np.reshape(all_pcs, (all_pcs.shape[0], pc_features.shape[1] * channels_to_use.size))
     if ((all_pcs.shape[0] > 10)
-            and not (all_labels == cluster_id).all()  # Not all lablels are this cluster
-            and (sum(all_labels == cluster_id) > 20)  # No fewer than 20 spikes in this cluster
+            and (cluster_id in all_labels)  # Not all labels are in this cluster
             and (len(channels_to_use) > 0)):
 
         isolation_distance, l_ratio = quality_metrics.mahalanobis_metrics(all_pcs, all_labels, cluster_id)
@@ -286,13 +295,15 @@ def calculate_pc_metrics_one_cluster(cluster_peak_channels, idx, cluster_id, clu
                                                                               cluster_id,
                                                                               max_spikes_for_nn,
                                                                               n_neighbors)
+
+        return isolation_distance, d_prime, nn_miss_rate, nn_hit_rate, l_ratio
     else:  # Too few spikes or cluster doesnt exist
-        isolation_distance = np.nan
-        d_prime = np.nan
-        nn_miss_rate = np.nan
-        nn_hit_rate = np.nan
-        l_ratio = np.nan
-    return isolation_distance, d_prime, nn_miss_rate, nn_hit_rate, l_ratio
+        # Make warnings
+        if all_pcs.shape[0] < 10:
+            warnings.warn(f'Less than 10 pcs in {cluster_id}! feature metrics will be nan')
+        elif not (cluster_id in all_labels):
+            warnings.warn(f'Not all labels are in cluster {cluster_id}! feature metrics will be nan')
+        return tuple(np.repeat(np.nan, 5))
 
 
 def calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, pc_features, pc_feature_ind,
@@ -415,14 +426,13 @@ def calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, 
                                                                           pc_features,
                                                                           pc_feature_ind,
                                                                           n_silhouette,
-                                                                          do_parallel=True)
+                                                                          do_parallel=do_parallel)
         metrics2 = pd.DataFrame(data=OrderedDict((('silhouette_score', the_silhouette_score),)),
                                 index=range(len(the_silhouette_score)))
 
         metrics = pd.concat([metrics, metrics2], axis=1)
     if do_drift:
         print("Calculating drift metrics")
-        # TODO [in_epoch] has to go. Need to modify loading function
         max_drift, cumulative_drift = quality_metrics.calculate_drift_metrics(spike_times,
                                                                               spike_clusters,
                                                                               spike_templates,

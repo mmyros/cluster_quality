@@ -9,7 +9,7 @@ def test_remove_double_counted_spikes():
     ### SinglePhase3
     base_path, files = test_dependencies.download_test_data(
         base_url='http://data.cortexlab.net/singlePhase3/data/',
-        base_path='tests/test_data/', download_features=False)
+        base_path='test_data/', download_features=False)
 
     (spike_times, spike_clusters, spike_templates, templates, amplitudes,
      unwhitened_temps, channel_map, cluster_ids, cluster_quality, pc_features, pc_feature_ind
