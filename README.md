@@ -56,3 +56,6 @@ print(result.head())
 ```
 pip install git+https://github.com/AllenInstitute/ecephys_spike_sorting.git
 ```
+# TODO 
+- Mark as noise after applying lax noise criteria & backup with timestamp
+- Extract PCs if bin file is available and original PCs missing

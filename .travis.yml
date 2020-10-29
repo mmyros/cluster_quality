@@ -5,8 +5,10 @@ notifications:
   email: false
 before_install:
  - python --version
- - pip install -U cython setuptools pip numpy
-# - git clone https://gitlab.com/mmyros/public_spikesorting_datasets.git ~/public_spikesorting_datasets # Extra test data
+ - pip install -U cython setuptools pip numpy gdown
+# - gdown https://drive.google.com/uc\?id\=1d3m9kv\-yFcBXloUrASNDcc9OE7XJu1Ce # Extra test data
+# - git clone https://gitlab.com/mmyros/public_spikesorting_datasets.git ~/public_spikesorting_datasets
+# - mv c24_npx_raw.bin ~/public_spikesorting_datasets/c24_npx_raw/
 
 install:
   - pip install -r requirements.txt
