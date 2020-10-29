@@ -84,7 +84,7 @@ def test_calculate_timing_metrics():
 def test_calculate_pc_features():
     (base_path, path_expected, spike_times, spike_clusters, spike_templates, templates, amplitudes,
      unwhitened_temps, channel_map, cluster_ids, cluster_quality, pc_features, pc_feature_ind
-     ) = download_and_load()
+     ) = download_and_load(subsample=1000)
 
     df = wrappers.calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, pc_features,
                                     pc_feature_ind,
@@ -101,7 +101,7 @@ def test_calculate_pc_features():
 def test_calculate_silhouette():
     (base_path, path_expected, spike_times, spike_clusters, spike_templates, templates, amplitudes,
      unwhitened_temps, channel_map, cluster_ids, cluster_quality, pc_features, pc_feature_ind
-     ) = download_and_load(subsample=50)
+     ) = download_and_load(subsample=1000)
 
     df = wrappers.calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, pc_features,
                                     pc_feature_ind,
@@ -117,7 +117,7 @@ def test_calculate_silhouette():
 def test_calculate_drift():
     (base_path, path_expected, spike_times, spike_clusters, spike_templates, templates, amplitudes,
      unwhitened_temps, channel_map, cluster_ids, cluster_quality, pc_features, pc_feature_ind
-     ) = download_and_load()
+     ) = download_and_load(subsample=1000)
 
     df = wrappers.calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, pc_features,
                                     pc_feature_ind,

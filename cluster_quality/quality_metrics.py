@@ -6,6 +6,7 @@ from scipy.stats import chi2
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.neighbors import NearestNeighbors
 import warnings
+from numba import njit
 
 
 def isi_violations(spike_train, min_time, max_time, isi_threshold, min_isi=0):
@@ -42,6 +43,7 @@ def isi_violations(spike_train, min_time, max_time, isi_threshold, min_isi=0):
     return fpRate, num_violations
 
 
+@njit
 def presence_ratio(spike_train, min_time, max_time, num_bins=100):
     """Calculate fraction of time the unit is present within an epoch.
     Inputs:
@@ -86,6 +88,7 @@ def firing_rate(spike_train, min_time=None, max_time=None):
     return fr
 
 
+@njit
 def amplitude_cutoff(amplitudes, num_histogram_bins=500, histogram_smoothing_value=3):
     """ Calculate approximate fraction of spikes missing from a distribution of amplitudes
     Assumes the amplitude histogram is symmetric (not valid in the presence of drift)
@@ -172,6 +175,7 @@ def mahalanobis_metrics(all_pcs, all_labels, this_unit_id):
     return isolation_distance, l_ratio
 
 
+@njit
 def lda_metrics(all_pcs, all_labels, this_unit_id):
     """ Calculates d-prime based on Linear Discriminant Analysis
     Based on metric described in Hill et al. (2011) J Neurosci 31: 8699-8705
@@ -209,6 +213,7 @@ def lda_metrics(all_pcs, all_labels, this_unit_id):
     return d_prime
 
 
+@njit
 def nearest_neighbors_metrics(all_pcs, all_labels, this_unit_id, max_spikes_for_nn, n_neighbors):
     """ Calculates unit contamination based on NearestNeighbors search in PCA space
     Based on metrics described in Chung, Magland et al. (2017) Neuron 95: 1381-1394
@@ -259,6 +264,7 @@ def nearest_neighbors_metrics(all_pcs, all_labels, this_unit_id, max_spikes_for_
     return hit_rate, miss_rate
 
 
+@njit
 def silhouette_score_inner_loop(i, cluster_ids, cluster_labels, all_pcs):
     """
     Helper to loop over cluster_ids in one dimension. We dont want to loop over both dimensions in parallel-
@@ -283,6 +289,8 @@ def silhouette_score_inner_loop(i, cluster_ids, cluster_labels, all_pcs):
             scores_1d.append(np.nan)
     return scores_1d
 
+
+@njit
 def calculate_silhouette_score(spike_clusters,
                                spike_templates,
                                total_units,

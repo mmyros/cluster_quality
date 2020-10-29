@@ -6,6 +6,7 @@ from tqdm import tqdm
 
 from collections import OrderedDict
 from . import quality_metrics
+from numba import njit
 
 
 # from .wrappers import * # Except calculate_pc_metrics and calculate_metrics - they will be replaced below
@@ -90,7 +91,7 @@ def calculate_amplitude_cutoff(spike_clusters, amplitudes):
 
     return np.array(amplitude_cutoffs)
 
-
+@njit
 def calculate_pc_metrics(spike_clusters,
                          spike_templates,
                          total_units,
@@ -230,7 +231,7 @@ def get_unit_pcs(unit_id,
     else:
         return None
 
-
+@njit
 def calculate_pc_metrics_one_cluster(cluster_peak_channels, idx, cluster_id, cluster_ids,
                                      half_spread, pc_features, pc_feature_ind,
                                      spike_clusters, spike_templates,
@@ -277,6 +278,13 @@ def calculate_pc_metrics_one_cluster(cluster_peak_channels, idx, cluster_id, clu
             all_labels = np.concatenate((all_labels, labels), 0)
         elif cluster_id2 == cluster_id:
             warnings.warn(f'No PCs for Cluster {cluster_id} in channels {channels_to_use}! feature metrics will be nan')
+
+            from pykilosort.cluster import extractPCfromSnippets
+            # TODO extract PCA waveforms pooled over channels
+            # Is proc file only pykilosort?
+            # proc = np.memmap(proc_path, dtype=dtype, mode='r', order='F')
+            # wPCA = extractPCfromSnippets(proc, probe=probe, params=params, Nbatch=Nbatch)
+
             return tuple(np.repeat(np.nan, 5))
 
     # Check no fewer than 20 spikes in this cluster
