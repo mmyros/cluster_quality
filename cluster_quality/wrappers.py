@@ -280,7 +280,7 @@ def calculate_pc_metrics_one_cluster(cluster_peak_channels, idx, cluster_id, clu
             return tuple(np.repeat(np.nan, 5))
 
     # Check no fewer than 20 spikes in this cluster
-    if sum(all_labels == cluster_id) > 20:
+    if sum(all_labels == cluster_id) < 20:
         warnings.warn(f'Fewer than 20 spikes in cluster {cluster_id}! feature metrics will be nan')
         return tuple(np.repeat(np.nan, 5))
 
