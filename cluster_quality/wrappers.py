@@ -367,6 +367,7 @@ def calculate_metrics(spike_times, spike_clusters, spike_templates, amplitudes, 
     print("Calculating isi violations")
     isi_viol_rate, isi_viol_n = calculate_isi_violations(spike_times, spike_clusters, isi_threshold, min_isi)
 
+
     print("Calculating presence ratio")
     presence_ratio = calculate_presence_ratio(spike_times, spike_clusters, )
 
